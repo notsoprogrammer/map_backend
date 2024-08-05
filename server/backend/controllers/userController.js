@@ -91,36 +91,37 @@ const userProfile = asyncHandler( async (req, res) => {
 });
 
 //@desc Update user profile
-//route Put /api/users/profile
+//route PUT /api/users/profile
 //@access Private
-const updateUserProfile = asyncHandler( async (req, res) => {
+const updateUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
-    if(user) {
+    if (user) {
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
+        user.job = req.body.job || user.job;
+        user.municipality = req.body.municipality || user.municipality;
+        user.profileImg = req.body.profileImg || user.profileImg;
 
-        if(req.body.password) {
-            user.password = req.body.password;
+        if (req.body.password) {
+            user.password = req.body.password;  // Ensure this password is hashed (usually handled in your User model)
         }
 
         const updatedUser = await user.save();
 
-        res.status(200).json({
+        res.json({
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
             municipality: updatedUser.municipality,
             job: updatedUser.job,
             profileImg: updatedUser.profileImg
-        })
-
+        });
     } else {
-        res.status(404);
-        throw new Error('User not found');
+        res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({ message: 'Update User Profile' });
 });
+
 
 export { 
     authUser, 
