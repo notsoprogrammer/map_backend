@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import profileImgRouter from './routes/profileImgRoutes.js'
 import fileUploadRoutes from './routes/fileUploadRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import mongoose from 'mongoose';
@@ -42,7 +41,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/get', mapRoutes);
 app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-// app.use('/api/users', profileImgRouter);
 // Root route
 app.get('/', (req, res) => res.send('Server is ready'));
 
