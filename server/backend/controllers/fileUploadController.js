@@ -8,8 +8,6 @@ import multer from 'multer'
 
 dotenv.config();
 
-// Create MongoDB connection and GridFS stream
-// const mongoURI = 'mongodb+srv://admin:Q2GBPLSOm5HaMi0d@geomap.w0wdzg3.mongodb.net/Maps?retryWrites=true&w=majority';
 const conn = mongoose.connection;
 let gfs;
 conn.once('open', () => {

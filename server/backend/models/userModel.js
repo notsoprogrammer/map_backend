@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema({
         required: true
     },
     profileImg: {
-        type: String,
+        type: String, default:''
     },
     token: {
         type: String,
