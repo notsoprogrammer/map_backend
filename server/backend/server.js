@@ -10,6 +10,7 @@ import mapRoutes from './routes/mapRoutes.js';
 import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import profileImageRoutes from './routes/ProfileImageRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -41,6 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/get', mapRoutes);
 app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/image', profileImageRoutes);
 // Root route
 app.get('/', (req, res) => res.send('Server is ready'));
 
