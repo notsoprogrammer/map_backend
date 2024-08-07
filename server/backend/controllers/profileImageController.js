@@ -70,5 +70,20 @@ const updateProfileImageMetadata = async (req, res) => {
         res.status(500).send("Error updating metadata: " + error.message);
     }
 };
+const getImagesByMunicipality = asyncHandler(async (req, res) => {
+    try {
+        const files = await gfs.find({
+            'metadata.municipality': req.params.municipality
+        }).sort({ uploadDate: -1 }).toArray();
+        if (!files.length) {
+            res.status(404).send('No images found for this municipality');
+        } else {
+            const readstream = gfs.openDownloadStreamByName(files[0].filename);
+            readstream.pipe(res);
+        }
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+});
 
-export { uploadProfileImage, getProfileImage, deleteProfileImage, updateProfileImageMetadata}
+export { uploadProfileImage, getProfileImage, deleteProfileImage, updateProfileImageMetadata, getImagesByMunicipality}

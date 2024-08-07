@@ -44,6 +44,7 @@ app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/image', profileImageRoutes);
 // Root route
+
 app.get('/', (req, res) => res.send('Server is ready'));
 
 // Error handling middleware

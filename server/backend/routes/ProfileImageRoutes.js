@@ -1,4 +1,3 @@
-// profileImageRoutes.js
 import express from 'express';
 import multer from 'multer';
 import { GridFsStorage } from 'multer-gridfs-storage';
@@ -8,7 +7,8 @@ import {
   uploadProfileImage,
   getProfileImage,
   deleteProfileImage,
-  updateProfileImageMetadata
+  updateProfileImageMetadata,
+  getImagesByMunicipality
 } from '../controllers/profileImageController.js';
 
 const router = express.Router();
@@ -36,16 +36,10 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
-// Route to handle file upload
+// Routes
 router.post('/upload', upload.single('file'), uploadProfileImage);
-
-// Route to retrieve a file by filename
-router.get('/:filename', getProfileImage);
-
-// Route to delete a file by filename
+router.get('/municipality/:municipality', getImagesByMunicipality); // Updated to use controller function
 router.delete('/:filename', deleteProfileImage);
-
-// Route to update metadata of a file
 router.put('/metadata/:filename', updateProfileImageMetadata);
 
 export default router;
