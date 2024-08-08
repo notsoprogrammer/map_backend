@@ -12,25 +12,22 @@ import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import profileImageRoutes from './routes/ProfileImageRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-
+import emailRoutes from './routes/emailRoutes.js'
 dotenv.config();
 
 const app = express();
 
-// Connect to the database
 connectDB(app);
 
-// Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware for parsing cookies
 app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3000', // Assuming your frontend is running on port 3000
-  credentials: true, // Allow cookies to be sent with requests
+  origin: 'http://localhost:3000',
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -43,6 +40,8 @@ app.use('/api/get', mapRoutes);
 app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/image', profileImageRoutes);
+app.use('/api/email', emailRoutes);
+
 // Root route
 
 app.get('/', (req, res) => res.send('Server is ready'));
