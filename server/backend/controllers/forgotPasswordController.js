@@ -13,7 +13,7 @@ export const forgotPassword = async (req, res) => {
     // Check for excessive attempts
     const now = new Date();
     if (user.lastResetAttempt && (now - user.lastResetAttempt < 24 * 60 * 60 * 1000)) {
-        if (user.resetAttempts >= 3) {
+        if (user.resetAttempts >= 20) {
             return res.status(429).json({ message: 'Maximum reset attempts exceeded. Please try again tomorrow.' });
         }
     } else {
