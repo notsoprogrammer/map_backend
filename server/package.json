@@ -1,4 +1,7 @@
-{
+{  "name": "server",
+"version": "1.0.0",
+"main": "backend/server.js",
+"type": "module",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -20,18 +23,14 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
-  "name": "server",
-  "version": "1.0.0",
-  "main": "index.js",
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
+"devDependencies": {
+  "nodemon": "^3.0.1"
+},
   "scripts": {
-    "test": "node server/server.js",
-    "server": "nodemon server/server.js"
+    "test": "node backend/server.js",
+    "server": "nodemon backend/server.js"
   },
   "author": "",
   "license": "ISC",
-  "type": "module",
   "description": ""
 }
