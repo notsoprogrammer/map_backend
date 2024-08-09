@@ -77,22 +77,3 @@ const getMetadata = asyncHandler ( async (req, res) => {
 });
 
 export { getMaps, getMetadata };
-
-      // res.setHeader('Content-Type', file.contentType);
-      
-      // const response = { metadata: file.metadata };
-
-      // readstream.on('data', (chunk) => {
-      //   response.imageData.push(chunk);
-      // });
-
-      // readstream.on('end', () => {
-      //   const combinedBuffer = Buffer.concat(response.imageData);
-      //   res.json(combinedBuffer);
-      // });
-
-      // readstream.pipe(res, { end: false });
-      // readstream.on('end', () => {
-      //     res.end(JSON.stringify(response));
-      //   });
-      //   res.json(file)

@@ -2,33 +2,16 @@ import bcrypt from 'bcryptjs';
 import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    municipality: {
-        type: String,
-        required: true
-    },
-    job: {
-        type: String,
-        required: true
-    },
-    profileImg: {
-        type: String, default:''
-    },
-    token: {
-        type: String,
-    },
+    name: {type: String,required: true},
+    email: {type: String,required: true,unique: true},
+    password: {type: String,required: true},
+    municipality: {type: String,required: true},
+    job: {type: String,required: true},
+    token: {type: String,},
+    resetToken: String,
+    resetTokenExpire: Date,
+    resetAttempts: { type: Number, default: 0 },
+    lastResetAttempt: Date
 }, {
     timestamps: true
 });
