@@ -27,8 +27,8 @@
     "nodemon": "^3.0.1"
   },
   "scripts": {
-    "test": "node backend/server.js",
-    "server": "nodemon backend/server.js"
+    "test": "node server/server.js",
+    "server": "nodemon server/server.js"
   },
   "author": "",
   "license": "ISC",
