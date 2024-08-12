@@ -29,7 +29,8 @@ app.use(cookieParser());
 const corsOptions = {
   origin: ['http://localhost:3000','https://mapulon.netlify.app'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
 };
 app.use(cors(corsOptions));
 
