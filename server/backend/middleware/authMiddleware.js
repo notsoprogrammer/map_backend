@@ -47,11 +47,16 @@ const protect = asyncHandler(async (req, res, next) => {
         try {
             token = req.headers.authorization.split(' ')[1];
 
+            if (!token) {
+                res.status(401);
+                throw new Error('Not authorized, no token');
+            }
+
             // Check if the token exists in the database
             const storedToken = await Token.findOne({ token });
             if (!storedToken) {
                 res.status(401);
-                throw new Error('Not authorized, token failed');
+                throw new Error('Not authorized, token not found');
             }
 
             // Verify the token
@@ -60,17 +65,22 @@ const protect = asyncHandler(async (req, res, next) => {
             // Attach the user to the request object
             req.user = await User.findById(decoded.userId).select('-password');
 
+            if (!req.user) {
+                res.status(401);
+                throw new Error('Not authorized, user not found');
+            }
+
             next();
         } catch (error) {
+            console.error('Token verification failed:', error);
             res.status(401);
             throw new Error('Not authorized, token failed');
         }
-    }
-
-    if (!token) {
+    } else {
         res.status(401);
         throw new Error('Not authorized, no token');
     }
 });
 
 export { protect };
+

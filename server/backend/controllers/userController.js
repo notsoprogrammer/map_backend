@@ -4,30 +4,6 @@ import asyncHandler from 'express-async-handler'
 import Token from '../models/tokenModel.js';
 import jwt from 'jsonwebtoken';
 
-//@desc Auth user/set token
-//route POST /api/users/auth
-//@access Public
-// const authUser = asyncHandler( async (req, res) => {
-//     const { email, password } = req.body;
-
-//     const user = await User.findOne({email});
-
-//     if(user && (await user.matchPasswords(password))) {
-//         generateToken(res,user._id);
-//         res.status(201).json({
-//             _id: user._id,
-//             name: user.name,
-//             email: user.email,
-//             municipality: user.municipality,
-//             job: user.job,
-//             profileImg: user.profileImg,
-//         })
-//     } else { 
-//         res.status(401);
-//         throw new Error('Invalid email or password')
-//     }
-// });
-
 const authUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -107,12 +83,21 @@ const registerUser = asyncHandler( async (req, res) => {
 //     res.status(200).json({ message: 'User logout User' });
 // });
 const logoutUser = asyncHandler(async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+
+    if (!token) {
+        res.status(400);
+        throw new Error('Token is missing');
+    }
+
+    // Delete the token from the database
+    await Token.findOneAndDelete({ token });
+
+    // Clear the JWT cookie (if using cookies)
     res.cookie('jwt', '', {
         httpOnly: true,
         expires: new Date(0),
     });
-    const token = req.headers.authorization.split(' ')[1];
-    await Token.findOneAndDelete({ token });
 
     res.status(200).json({ message: 'User logged out successfully' });
 });
