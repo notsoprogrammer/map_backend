@@ -83,17 +83,7 @@ const registerUser = asyncHandler( async (req, res) => {
 //     res.status(200).json({ message: 'User logout User' });
 // });
 const logoutUser = asyncHandler(async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
 
-    if (!token) {
-        res.status(400);
-        throw new Error('Token is missing');
-    }
-
-    // Delete the token from the database
-    await Token.findOneAndDelete({ token });
-
-    // Clear the JWT cookie (if using cookies)
     res.cookie('jwt', '', {
         httpOnly: true,
         expires: new Date(0),
