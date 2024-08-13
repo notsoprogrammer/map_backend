@@ -30,7 +30,8 @@ const corsOptions = {
   origin: ['http://localhost:3000','https://mapulon.netlify.app'],
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
 };
 app.use(cors(corsOptions));
 
