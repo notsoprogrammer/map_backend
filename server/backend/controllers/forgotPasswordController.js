@@ -99,4 +99,21 @@ export const resetPassword = async (req, res) => {
     }
 };
 
+export const getEmail = async (req, res) => {
+    const { token } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid token or user does not exist.' });
+        }
+
+        res.status(200).json({ email: user.email });
+    } catch (error) {
+        console.error('Error in getEmail:', error);
+        res.status(400).json({ message: 'Failed to retrieve email.' });
+    }
+};
 
