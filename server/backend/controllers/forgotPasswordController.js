@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../models/userModel.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -31,7 +33,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Create the reset URL and email it to the user
-    const resetUrl = `${process.env.REACT_APP_API_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.REACT_FRONTEND}/reset-password/${resetToken}`;
     const message = `You are receiving this because you (or someone else) requested a reset of your account password.\n\n
                      Please click on the following link, or paste it into your browser to complete the process:\n\n
                      ${resetUrl}\n\n
@@ -40,7 +42,7 @@ export const forgotPassword = async (req, res) => {
     const transporter = nodemailer.createTransport({
         service: 'SendGrid',
         auth: {
-            user: SENDGRID_USERNAME,
+            user: process.env.SENDGRID_USERNAME,
             pass: process.env.SENDGRID_PASSWORD
         }
     });
