@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../models/userModel.js';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 dotenv.config();
 
 export const forgotPassword = async (req, res) => {
@@ -62,3 +63,38 @@ export const forgotPassword = async (req, res) => {
         res.status(200).json({ message: 'Reset link sent to email.' });
     });
 };
+
+export const resetPassword = async (req, res) => {
+    const { token, password } = req.body;
+
+    try {
+        console.log("Received token:", token); // Log token
+        console.log("Received password:", password); // Log password
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("Decoded token:", decoded); // Log decoded token
+
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            console.log("User not found for ID:", decoded.id); // Log if user not found
+            return res.status(400).json({ message: 'Invalid token or user does not exist.' });
+        }
+
+        if (user.resetToken !== token || user.resetTokenExpire < Date.now()) {
+            console.log("Token mismatch or expired."); // Log if token is invalid or expired
+            return res.status(400).json({ message: 'Token expired or invalid.' });
+        }
+
+        // Hash the new password and update the user record
+        user.password = await bcrypt.hash(password, 10);
+        user.resetToken = undefined;
+        user.resetTokenExpire = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successful.' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error); // Log detailed error
+        res.status(400).json({ message: 'Failed to reset password.' });
+    }
+};
+
