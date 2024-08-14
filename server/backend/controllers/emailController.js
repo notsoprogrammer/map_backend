@@ -4,7 +4,13 @@ dotenv.config();
 
 const sendEmail = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, message } = req.body;
-  
+
+    // Logging environment variables to ensure they are loaded correctly
+    console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    console.log('SMTP_MAIL:', process.env.SMTP_MAIL ? 'Loaded' : 'Not Loaded');  // Avoid logging the actual email for security
+    console.log('SMTP_PASS:', process.env.SMTP_PASS ? 'Loaded' : 'Not Loaded');  // Avoid logging the actual password for security
+
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
@@ -14,7 +20,7 @@ const sendEmail = async (req, res) => {
         pass: process.env.SMTP_PASS
       }
     });
-  
+
     const mailOptions = {
       from: process.env.SMTP_MAIL,
       to: email,
@@ -35,15 +41,15 @@ If any of this information is incorrect, please let us know.
 Best regards,
 Project Geomap`
     };
-  
+
     try {
-      await transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent:', info.response);  // Log successful email sending
       res.status(200).json({ message: 'Email sent successfully, thank you for your message!' });
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Error sending email:', error);  // Log the error details
       res.status(500).json({ error: 'Failed to send email', details: error.message });
     }
-  };
-  
+};
 
 export { sendEmail };
