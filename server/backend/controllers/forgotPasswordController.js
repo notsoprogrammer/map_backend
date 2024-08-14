@@ -68,25 +68,19 @@ export const resetPassword = async (req, res) => {
     const { token, password } = req.body;
 
     try {
-        // Verify the token
-        console.log("Received token:", token); // Log token
-        console.log("Received password:", password); // Log password
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id);
-        console.log("User not found for ID:", decoded.id); 
+
         if (!user) {
             return res.status(400).json({ message: 'Invalid token or user does not exist.' });
         }
 
-        // Check if the token matches and is still valid
         if (user.resetToken !== token || user.resetTokenExpire < Date.now()) {
-            console.log("Token mismatch or expired.");
             return res.status(400).json({ message: 'Token expired or invalid.' });
         }
 
-        // Hash the new password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        // Update the password; the pre-save hook will hash it
+        user.password = password;
 
         // Clear reset token fields
         user.resetToken = undefined;
@@ -95,10 +89,11 @@ export const resetPassword = async (req, res) => {
         // Save the updated user
         await user.save();
 
-        // Redirect or notify the user
         res.status(200).json({ message: 'Password reset successful. Please log in with your new password.' });
     } catch (error) {
         console.error('Error in resetPassword:', error);
         res.status(400).json({ message: 'Failed to reset password.' });
     }
 };
+
+
