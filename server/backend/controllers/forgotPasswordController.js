@@ -68,33 +68,37 @@ export const resetPassword = async (req, res) => {
     const { token, password } = req.body;
 
     try {
+        // Verify the token
         console.log("Received token:", token); // Log token
         console.log("Received password:", password); // Log password
-
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded token:", decoded); // Log decoded token
-
         const user = await User.findById(decoded.id);
+        console.log("User not found for ID:", decoded.id); 
         if (!user) {
-            console.log("User not found for ID:", decoded.id); // Log if user not found
             return res.status(400).json({ message: 'Invalid token or user does not exist.' });
         }
 
+        // Check if the token matches and is still valid
         if (user.resetToken !== token || user.resetTokenExpire < Date.now()) {
-            console.log("Token mismatch or expired."); // Log if token is invalid or expired
+            console.log("Token mismatch or expired.");
             return res.status(400).json({ message: 'Token expired or invalid.' });
         }
 
-        // Hash the new password and update the user record
-        user.password = await bcrypt.hash(password, 10);
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        // Clear reset token fields
         user.resetToken = undefined;
         user.resetTokenExpire = undefined;
+
+        // Save the updated user
         await user.save();
 
-        res.status(200).json({ message: 'Password reset successful.' });
+        // Redirect or notify the user
+        res.status(200).json({ message: 'Password reset successful. Please log in with your new password.' });
     } catch (error) {
-        console.error('Error in resetPassword:', error); // Log detailed error
+        console.error('Error in resetPassword:', error);
         res.status(400).json({ message: 'Failed to reset password.' });
     }
 };
-
