@@ -89,7 +89,10 @@ export const resetPassword = async (req, res) => {
         // Save the updated user
         await user.save();
 
-        res.status(200).json({ message: 'Password reset successful. Please log in with your new password.' });
+        res.status(200).json({ message: 'Password reset successful. Please log in with your new password.',
+            email: user.email
+         });
+        
     } catch (error) {
         console.error('Error in resetPassword:', error);
         res.status(400).json({ message: 'Failed to reset password.' });
