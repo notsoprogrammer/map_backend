@@ -16,7 +16,7 @@ export const forgotPassword = async (req, res) => {
     // Check for excessive attempts
     const now = new Date();
     if (user.lastResetAttempt && (now - user.lastResetAttempt < 24 * 60 * 60 * 1000)) {
-        if (user.resetAttempts >= 20) {
+        if (user.resetAttempts >= 3) {
             return res.status(429).json({ message: 'Maximum reset attempts exceeded. Please try again tomorrow.' });
         }
     } else {
@@ -72,10 +72,12 @@ export const resetPassword = async (req, res) => {
         const user = await User.findById(decoded.id);
 
         if (!user) {
+            console.log("User not found for token:", decoded.id);
             return res.status(400).json({ message: 'Invalid token or user does not exist.' });
         }
 
         if (user.resetToken !== token || user.resetTokenExpire < Date.now()) {
+            console.log("Token mismatch or expired.");
             return res.status(400).json({ message: 'Token expired or invalid.' });
         }
 
@@ -88,16 +90,15 @@ export const resetPassword = async (req, res) => {
 
         // Save the updated user
         await user.save();
+        console.log("Password reset successful for user:", user.email);
 
-        res.status(200).json({ message: 'Password reset successful. Please log in with your new password.',
-            email: user.email
-         });
-        
+        res.status(200).json({ message: 'Password reset successful. Please log in with your new password.' });
     } catch (error) {
         console.error('Error in resetPassword:', error);
-        res.status(400).json({ message: 'Failed to reset password.' });
+        res.status(500).json({ message: 'Failed to reset password.', error: error.message });
     }
 };
+
 
 export const getEmail = async (req, res) => {
     const { token } = req.body;
