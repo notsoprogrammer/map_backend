@@ -16,7 +16,7 @@ export const forgotPassword = async (req, res) => {
     // Check for excessive attempts
     const now = new Date();
     if (user.lastResetAttempt && (now - user.lastResetAttempt < 24 * 60 * 60 * 1000)) {
-        if (user.resetAttempts >= 3) {
+        if (user.resetAttempts >= 5) {
             return res.status(429).json({ message: 'Maximum reset attempts exceeded. Please try again tomorrow.' });
         }
     } else {
@@ -41,29 +41,33 @@ export const forgotPassword = async (req, res) => {
                      If you did not request this, please ignore this email and your password will remain unchanged.`;
 
     const transporter = nodemailer.createTransport({
-        service: 'SendGrid',
-        auth: {
-            user: process.env.SENDGRID_USERNAME,
-            pass: process.env.SENDGRID_PASSWORD
-        }
-    });
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false,  // true for port 465, false for other ports
+    auth: {
+        user: process.env.SMTP_MAIL,
+        pass: process.env.SMTP_PASS
+    }
+});
+                
+
 
     const mailOptions = {
-        from: process.env.SMTP_MAIL,
-        to: email,
+        from: process.env.SMTP_MAIL,  // Sender address (your app's email)
+        to: email,                    // Receiver address (user's email)
         subject: 'Password Reset Request',
         text: message
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Failed to send reset email:', error);
-            return res.status(500).json({ message: 'Email could not be sent.', error: error.message });
-        }
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
         res.status(200).json({ message: 'Reset link sent to email.' });
-    });
-};
-
+    } catch (error) {
+        console.error('Failed to send reset email:', error);
+        res.status(500).json({ message: 'Email could not be sent.', error: error.message });
+    }
+    };
 export const resetPassword = async (req, res) => {
     const { token, password } = req.body;
 
