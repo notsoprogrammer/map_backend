@@ -12,7 +12,6 @@ import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import profileImageRoutes from './routes/ProfileImageRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import tokenRoutes from './routes/tokenRoutes.js'
 import emailRoutes from './routes/emailRoutes.js'
 import forgotRoutes from './routes/forgotPWRoutes.js'
 dotenv.config();
@@ -42,7 +41,6 @@ app.use(bodyParser.json());
 // Define routes
 app.use('/api/users', userRoutes);
 app.use('/api/get', mapRoutes);
-app.use('/api/token', tokenRoutes); 
 app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/image', profileImageRoutes);
