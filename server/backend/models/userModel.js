@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
     municipality: {type: String,required: true},
     job: {type: String,required: true},
     token: {type: String,},
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
     resetToken: String,
     resetTokenExpire: Date,
     resetAttempts: { type: Number, default: 0 },
