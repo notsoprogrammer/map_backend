@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import fileUploadRoutes from './routes/fileUploadRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
@@ -40,7 +41,7 @@ app.use(bodyParser.json());
 // Define routes
 app.use('/api/users', userRoutes);
 app.use('/api/get', mapRoutes);
-// app.use('/api/files', fileUploadRoutes);
+app.use('/api/files', fileUploadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/image', profileImageRoutes);
 app.use('/api/email', emailRoutes);
