@@ -11,7 +11,7 @@ const authUser = asyncHandler(async (req, res) => {
 
     if (user && (await user.matchPasswords(password))) {
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '2d', // or any duration you prefer
+            expiresIn: '1d', // or any duration you prefer
         });
 
         // Store the token in the database
@@ -26,6 +26,7 @@ const authUser = asyncHandler(async (req, res) => {
             email: user.email,
             municipality: user.municipality,
             job: user.job,
+            role: user.role,
             token,
         });
     } else {
@@ -38,7 +39,7 @@ const authUser = asyncHandler(async (req, res) => {
 //route POST /api/users
 //@access Public
 const registerUser = asyncHandler( async (req, res) => {
-    const { name, email, password, municipality, job, profileImg } = req.body;
+    const { name, email, password, municipality, job, profileImg,role } = req.body;
 
     const userExists = await User.findOne({email});
 
@@ -53,7 +54,7 @@ const registerUser = asyncHandler( async (req, res) => {
         password,
         municipality,
         job,
-        profileImg,
+        role
     });
 
     if(user) {
@@ -63,7 +64,9 @@ const registerUser = asyncHandler( async (req, res) => {
             name: user.name,
             email: user.email,
             municipality: user.municipality,
-            job: user.job
+            job: user.job,
+            role: user.role,
+        
         })
     } else {
         res.status(400);
@@ -74,14 +77,7 @@ const registerUser = asyncHandler( async (req, res) => {
 //@desc Logout user
 //route POST /api/users/logout
 //@access Public
-// const logoutUser = asyncHandler( async (req, res) => {
-//     res.cookie('jwt', '', {
-//         httpOnly: true,
-//         expires: new Date(0),
-//     });
 
-//     res.status(200).json({ message: 'User logout User' });
-// });
 const logoutUser = asyncHandler(async (req, res) => {
 
     res.cookie('jwt', '', {
@@ -102,7 +98,7 @@ const userProfile = asyncHandler( async (req, res) => {
         email: req.user.email,
         municipality: req.user.municipality,
         job: req.user.job,
-        profileImg: req.user.profileImg,
+        role: req.user.role,
     };
     res.status(200).json(user);
 });
@@ -118,7 +114,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         user.email = req.body.email || user.email;
         user.job = req.body.job || user.job;
         user.municipality = req.body.municipality || user.municipality;
-        user.profileImg = req.body.profileImg || user.profileImg;
+        // user.profileImg = req.body.profileImg || user.profileImg;
 
         if (req.body.password) {
             user.password = req.body.password;  // Ensure this password is hashed (usually handled in your User model)
@@ -132,7 +128,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             email: updatedUser.email,
             municipality: updatedUser.municipality,
             job: updatedUser.job,
-            profileImg: updatedUser.profileImg
+            // profileImg: updatedUser.profileImg
         });
     } else {
         res.status(404).json({ message: 'User not found' });
