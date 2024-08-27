@@ -1,38 +1,65 @@
 import User from '../models/userModel.js';
-import asyncHandler from 'express-async-handler'
-// import generateToken from '../utils/generateToken.js';
+import asyncHandler from 'express-async-handler';
 import Token from '../models/tokenModel.js';
 import jwt from 'jsonwebtoken';
+import moment from 'moment';
+import uuid from 'uuid';
 
+//@desc Auth user/set token
+//route POST /api/users/auth
+//@access Public
 const authUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-    if (user && (await user.matchPasswords(password))) {
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '1d', // or any duration you prefer
-        });
+  if (user && (await user.matchPasswords(password))) {
+    // Generate the authentication token
+    const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d', // or any duration you prefer
+    });
 
-        // Store the token in the database
-        await Token.create({
-            userId: user._id,
-            token,
-        });
+    // Generate the Tableau-specific JWT
+    const tableauToken = jwt.sign(
+      {
+        iss: process.env.CONNECTED_APP_CLIENT_ID, // Connected App Client ID
+        exp: moment().utc().add(5, 'minutes').unix(),
+        jti: uuid.v4(),
+        aud: 'tableau',
+        sub: user.email, // The Tableau Cloud user email
+        scp: ["tableau:views:embed", "tableau:metrics:embed"]},
+      process.env.CONNECTED_APP_SECRET_KEY,
+      {
+        algorithm: 'HS256',
+        header: {
+          kid: process.env.CONNECTED_APP_SECRET_ID,
+          iss: process.env.CONNECTED_APP_CLIENT_ID
+        }
+      }
+    );
 
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            municipality: user.municipality,
-            job: user.job,
-            role: user.role,
-            token,
-        });
-    } else {
-        res.status(401);
-        throw new Error('Invalid email or password');
-    }
+    // Store both tokens in the database
+    await Token.create({
+      userId: user._id,
+      token: authToken,
+      tableauToken: tableauToken,
+    });
+
+    // Respond with the tokens and user details
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      municipality: user.municipality,
+      job: user.job,
+      role: user.role,
+      token: authToken, // Authentication token
+      tableauToken: tableauToken, // Tableau-specific token
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
 });
 
 //@desc Register new user

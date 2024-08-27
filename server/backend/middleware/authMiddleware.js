@@ -6,24 +6,24 @@ import User from '../models/userModel.js';
 const protect = asyncHandler(async (req, res, next) => {
     console.log('Authorization Header:', req.headers.authorization); // Log the authorization header
 
-    let token;
+    let authtoken;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            token = req.headers.authorization.split(' ')[1];
+            authtoken = req.headers.authorization.split(' ')[1];
 
-            if (!token) {
+            if (!authtoken) {
                 res.redirect(`${process.env.REACT_APP_API_URL}/api/users/logout`);
                 throw new Error('Not authorized, no token');
             }
 
-            const storedToken = await Token.findOne({ token });
+            const storedToken = await Token.findOne({ authtoken });
             if (!storedToken) {
                 res.redirect(`${process.env.REACT_APP_API_URL}/api/users/logout`);
                 throw new Error('Not authorized, token not found');
             }
 
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(authtoken, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.userId).select('-password');
 
             if (!req.user) {
