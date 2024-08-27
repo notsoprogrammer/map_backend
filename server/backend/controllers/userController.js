@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import Token from '../models/tokenModel.js';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 //@desc Auth user/set token
 //route POST /api/users/auth
@@ -24,7 +24,7 @@ const authUser = asyncHandler(async (req, res) => {
       {
         iss: process.env.CONNECTED_APP_CLIENT_ID, // Connected App Client ID
         exp: moment().utc().add(5, 'minutes').unix(),
-        jti: uuid.v4(),
+        jti: uuidv4(),
         aud: 'tableau',
         sub: user.email, // The Tableau Cloud user email
         scp: ["tableau:views:embed", "tableau:metrics:embed"]},
