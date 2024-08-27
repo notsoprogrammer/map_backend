@@ -12,8 +12,9 @@ import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import profileImageRoutes from './routes/ProfileImageRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import emailRoutes from './routes/emailRoutes.js'
-import forgotRoutes from './routes/forgotPWRoutes.js'
+import emailRoutes from './routes/emailRoutes.js';
+import forgotRoutes from './routes/forgotPWRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -46,7 +47,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/image', profileImageRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/auth',forgotRoutes);
-
+app.use('/api/admin',adminRoutes);
 // Root route
 
 app.get('/', (req, res) => res.send('Server is ready'));
