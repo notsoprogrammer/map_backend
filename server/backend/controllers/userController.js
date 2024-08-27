@@ -53,8 +53,8 @@ const authUser = asyncHandler(async (req, res) => {
       municipality: user.municipality,
       job: user.job,
       role: user.role,
-      token: authToken, // Authentication token
-      tableauToken: tableauToken, // Tableau-specific token
+      authToken, // Authentication token
+      tableauToken, // Tableau-specific token
     });
   } else {
     res.status(401);
