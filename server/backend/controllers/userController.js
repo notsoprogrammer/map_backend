@@ -27,7 +27,7 @@ const authUser = asyncHandler(async (req, res) => {
         jti: uuidv4(),
         aud: 'tableau',
         sub: user.email, // The Tableau Cloud user email
-        scp: ["tableau:views:embed"]},
+        scp: ["tableau:views:embed", "tableau:metrics:embed"]},
       process.env.CONNECTED_APP_SECRET_KEY,
       {
         algorithm: 'HS256',
@@ -41,7 +41,7 @@ const authUser = asyncHandler(async (req, res) => {
     // Store both tokens in the database
     await Token.create({
       userId: user._id,
-      authToken: authToken,
+      token: authToken,
       tableauToken: tableauToken,
     });
 

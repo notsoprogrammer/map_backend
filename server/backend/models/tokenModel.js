@@ -7,7 +7,7 @@ const tokenSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  authtoken: { 
+  token: { 
     type: String,
     required: true,
   },
