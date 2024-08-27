@@ -66,40 +66,44 @@ const authUser = asyncHandler(async (req, res) => {
 //route POST /api/users
 //@access Public
 const registerUser = asyncHandler( async (req, res) => {
-    const { name, email, password, municipality, job, profileImg,role } = req.body;
+  const { name, email, password, municipality, job, role } = req.body;
 
-    const userExists = await User.findOne({email});
+  try {
+      const userExists = await User.findOne({ email });
 
-    if(userExists) {
-        res.status(400);
-        throw new Error('User already exists');
-    }
+      if(userExists) {
+          res.status(400);
+          throw new Error('User already exists');
+      }
 
-    const user = await User.create({
-        name,
-        email,
-        password,
-        municipality,
-        job,
-        role
-    });
+      const user = await User.create({
+          name,
+          email,
+          password,
+          municipality,
+          job,
+          role
+      });
 
-    if(user) {
-        generateToken(res,user._id);
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            municipality: user.municipality,
-            job: user.job,
-            role: user.role,
-        
-        })
-    } else {
-        res.status(400);
-        throw new Error('Invalid user data')
-    }
+      if(user) {
+          res.status(201).json({
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              municipality: user.municipality,
+              job: user.job,
+              role: user.role,
+          });
+      } else {
+          res.status(400);
+          throw new Error('Invalid user data');
+      }
+  } catch (error) {
+      console.error('Error during user registration:', error.message);
+      res.status(500).json({ message: 'Server error during user registration' });
+  }
 });
+
 
 //@desc Logout user
 //route POST /api/users/logout
