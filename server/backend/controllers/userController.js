@@ -4,6 +4,7 @@ import Token from '../models/tokenModel.js';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios'; 
 
 //@desc Auth user/set token
 //route POST /api/users/auth
@@ -14,20 +15,19 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPasswords(password))) {
-    // Generate the authentication token
     const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d', // or any duration you prefer
+      expiresIn: '1d',
     });
 
-    // Generate the Tableau-specific JWT
     const tableauToken = jwt.sign(
       {
-        iss: process.env.CONNECTED_APP_CLIENT_ID, // Connected App Client ID
+        iss: process.env.CONNECTED_APP_CLIENT_ID,
         exp: moment().utc().add(5, 'minutes').unix(),
         jti: uuidv4(),
         aud: 'tableau',
-        sub: user.email, // The Tableau Cloud user email
-        scp: ["tableau:views:embed"]},
+        sub: user.email,
+        scp: ["tableau:views:embed"]
+      },
       process.env.CONNECTED_APP_SECRET_KEY,
       {
         algorithm: 'HS256',
@@ -38,29 +38,48 @@ const authUser = asyncHandler(async (req, res) => {
       }
     );
 
-    // Store both tokens in the database
-    await Token.create({
-      userId: user._id,
-      token: authToken,
-      tableauToken: tableauToken,
-    });
+    const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
+    const signInRequestBody = `
+      <tsRequest>
+        <credentials jwt="${tableauToken}">
+          <site contentUrl="${process.env.TABLEAU_SITE_URL}"/>
+        </credentials>
+      </tsRequest>`;
 
-    // Respond with the tokens and user details
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      municipality: user.municipality,
-      job: user.job,
-      role: user.role,
-      authToken, // Authentication token
-      tableauToken, // Tableau-specific token
-    });
+    try {
+      const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
+        headers: { 'Content-Type': 'application/xml' }
+      });
+
+      const tableauTokenResponse = tableauResponse.data.credentials.token;
+
+      await Token.create({
+        userId: user._id,
+        token: authToken,
+        tableauToken: tableauTokenResponse,
+      });
+
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        municipality: user.municipality,
+        job: user.job,
+        role: user.role,
+        authToken,
+        tableauToken: tableauTokenResponse,
+      });
+    } catch (error) {
+      console.error('Error signing in to Tableau:', error.message);
+      res.status(500).json({ message: 'Error signing in to Tableau' });
+    }
+
   } else {
     res.status(401);
     throw new Error('Invalid email or password');
   }
 });
+
 
 //@desc Register new user
 //route POST /api/users
