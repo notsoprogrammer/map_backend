@@ -34,9 +34,10 @@ const authUser = asyncHandler(async (req, res) => {
         header: {
           kid: process.env.CONNECTED_APP_SECRET_ID,
           iss: process.env.CONNECTED_APP_CLIENT_ID
-        }
+        } 
       }
     );
+    console.log( tableauToken);
 
     const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
     const signInRequestBody = `
@@ -52,6 +53,7 @@ const authUser = asyncHandler(async (req, res) => {
       });
 
       const tableauTokenResponse = tableauResponse.data.credentials.token;
+      console.log('Tableau Sign-In Response:', tableauResponse.data);
 
       await Token.create({
         userId: user._id,
