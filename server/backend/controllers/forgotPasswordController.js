@@ -128,15 +128,17 @@ const {
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URI,
-    JWT_SECRET
+    JWT_SECRET,
+    TABLEAU_CLIENT_ID,
+    TABLEAU_REDIRECT_URI
 } = process.env;
 
 
 // New Google OAuth functions
-export const redirectToGoogle = (req, res) => {
+export const redirectToTableau = (req, res) => {
     const scope = 'openid email profile';
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=code&prompt=consent`;
-    res.redirect(authUrl);
+    const tableauAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${TABLEAU_CLIENT_ID}&redirect_uri=${encodeURIComponent(TABLEAU_REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=code&prompt=consent`;
+    res.redirect(tableauAuthUrl);
 };
 
 export const handleGoogleCallback = asyncHandler(async (req, res) => {
