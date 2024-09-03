@@ -20,7 +20,7 @@ router.get('/validate-token', (req, res) => {
       res.status(401).json({ valid: false, message: 'Token expired or invalid' });
     }
   });// Route to start the Google OAuth flow
-router.get('/google', redirectToTableau);
+router.get('/tableau', redirectToTableau);
 
 // Route to handle the callback from Google after authentication
 router.get('/google/callback', handleGoogleCallback);
