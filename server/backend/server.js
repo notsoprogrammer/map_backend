@@ -15,6 +15,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import emailRoutes from './routes/emailRoutes.js';
 import forgotRoutes from './routes/forgotPWRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+
 dotenv.config();
 
 const app = express();
