@@ -164,3 +164,11 @@ export const tableauCallback = async (req, res) => {
     res.status(500).send('Authentication failed');
   }
 };
+
+export const tableauSession = async (req, res) => {
+    if (req.session.isAuthenticatedWithTableau) {
+        res.json({ isAuthenticated: true });
+    } else {
+        res.json({ isAuthenticated: false });
+    }
+};

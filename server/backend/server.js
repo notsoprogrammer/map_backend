@@ -15,8 +15,16 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import emailRoutes from './routes/emailRoutes.js';
 import forgotRoutes from './routes/forgotPWRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import session from 'express-session';
 
 dotenv.config();
+
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: 'auto' } // Automatically set secure to true if request is HTTPS
+}));
 
 const app = express();
 

@@ -4,11 +4,11 @@ import Token from '../models/tokenModel.js';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios'; 
+import axios from 'axios';
 
-//@desc Auth user/set token
-//route POST /api/users/auth
-//@access Public
+// @desc Auth user and set token
+// @route POST /api/users/auth
+// @access Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -20,65 +20,65 @@ const authUser = asyncHandler(async (req, res) => {
     });
 
     const tableauToken = jwt.sign(
-      {
-        iss: process.env.CONNECTED_APP_CLIENT_ID,
-        exp: moment().utc().add(5, 'minutes').unix(),
-        jti: uuidv4(),
-        aud: 'tableau',
-        sub: user.email,
-        scp: ["tableau:views:embed"]
-      },
-      process.env.CONNECTED_APP_SECRET_KEY,
-      {
-        algorithm: 'HS256',
-        header: {
-          kid: process.env.CONNECTED_APP_SECRET_ID,
-          iss: process.env.CONNECTED_APP_CLIENT_ID
-        } 
-      }
+        {
+            iss: process.env.CONNECTED_APP_CLIENT_ID,
+            exp: moment().utc().add(5, 'minutes').unix(),
+            jti: uuidv4(),
+            aud: 'tableau',
+            sub: user.email,
+            scp: ["tableau:views:embed"]
+        },
+        process.env.CONNECTED_APP_SECRET_KEY,
+        {
+            algorithm: 'HS256',
+            header: {
+                kid: process.env.CONNECTED_APP_SECRET_ID,
+                iss: process.env.CONNECTED_APP_CLIENT_ID
+            }
+        }
     );
     console.log( tableauToken);
 
-    const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
-    const signInRequestBody = `
-      <tsRequest>
-        <credentials jwt="${tableauToken}">
-          <site contentUrl="${process.env.TABLEAU_SITE_URL}"/>
-        </credentials>
-      </tsRequest>`;
+      const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
+      const signInRequestBody = `
+          <tsRequest>
+              <credentials jwt="${tableauToken}">
+                  <site contentUrl="${process.env.TABLEAU_SITE_URL}"/>
+              </credentials>
+          </tsRequest>`;
 
-    try {
-      const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
-        headers: { 'Content-Type': 'application/xml' }
-      });
+      try {
+          const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
+              headers: { 'Content-Type': 'application/xml' }
+          });
 
-      const tableauTokenResponse = tableauResponse.data.credentials.token;
-      console.log('Tableau Sign-In Response:', tableauResponse.data);
+          if (tableauResponse.data && tableauResponse.data.credentials && tableauResponse.data.credentials.token) {
+              const tableauTokenResponse = tableauResponse.data.credentials.token;
+              req.session.isAuthenticatedWithTableau = true;  // Set session variable on successful authentication
 
-      await Token.create({
-        userId: user._id,
-        token: authToken,
-        tableauToken: tableauTokenResponse,
-      });
+              await Token.create({
+                  userId: user._id,
+                  token: authToken,
+                  tableauToken: tableauTokenResponse,
+              });
 
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        municipality: user.municipality,
-        job: user.job,
-        role: user.role,
-        authToken,
-        tableauToken: tableauTokenResponse,
-      });
-    } catch (error) {
-      console.error('Error signing in to Tableau:', error.message);
-      res.status(500).json({ message: 'Error signing in to Tableau' });
-    }
-
+              res.status(201).json({
+                  _id: user._id,
+                  name: user.name,
+                  email: user.email,
+                  municipality: user.municipality,
+                  job: user.job,
+                  role: user.role,
+                  authToken,
+                  tableauToken: tableauTokenResponse,
+              });
+          }
+      } catch (error) {
+          console.error('Error signing in to Tableau:', error.message);
+          res.status(500).json({ message: 'Error signing in to Tableau' });
+      }
   } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
+      res.status(401).json({ message: 'Invalid email or password' });
   }
 });
 
