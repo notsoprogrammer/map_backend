@@ -10,9 +10,9 @@ const router = express.Router();
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword); 
 router.post('/get-email', getEmail); 
-router.get('/api/auth/tableau', tableauAuth);
-router.get('/api/auth/tableau/callback', tableauCallback);
-router.get('/api/auth/tableau/session', tableauSession);
+router.get('/tableau', tableauAuth);
+router.get('/tableau/callback', tableauCallback);
+router.get('/tableau/session', tableauSession);
 router.get('/validate-token', (req, res) => {
     const authToken = req.headers.authorization.split(' ')[1];
     
