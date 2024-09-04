@@ -1,4 +1,4 @@
-import {forgotPassword,resetPassword,getEmail} from '../controllers/forgotPasswordController.js';
+import {forgotPassword,resetPassword,getEmail,tableauAuth,tableauCallback} from '../controllers/forgotPasswordController.js';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -10,6 +10,8 @@ const router = express.Router();
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword); 
 router.post('/get-email', getEmail); 
+router.get('/api/auth/tableau', tableauAuth);
+router.get('/api/auth/tableau/callback', tableauCallback);
 router.get('/validate-token', (req, res) => {
     const authToken = req.headers.authorization.split(' ')[1];
     

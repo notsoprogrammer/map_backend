@@ -3,6 +3,9 @@ import nodemailer from 'nodemailer';
 import User from '../models/userModel.js';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
+import axios from 'axios';
+import qs from 'query-string';
+
 dotenv.config();
 
 export const forgotPassword = async (req, res) => {
@@ -122,3 +125,42 @@ export const getEmail = async (req, res) => {
     }
 };
 
+
+export const tableauAuth = (req, res) => {
+  const authUrl = `https://public.tableau.com/oauth2/v1/authorize?` + qs.stringify({
+    response_type: 'code',
+    client_id: process.env.TABLEAU_CLIENT_ID,
+    scope: 'full',
+    state: 'xyz', // A unique session identifier to mitigate CSRF
+    redirect_uri: process.env.TABLEAU_REDIRECT_URI
+  });
+
+  res.redirect(authUrl);
+};
+
+export const tableauCallback = async (req, res) => {
+  const { code } = req.query;
+  const tokenUrl = 'https://public.tableau.com/oauth2/v1/access_token';
+
+  try {
+    const response = await axios.post(tokenUrl, qs.stringify({
+      grant_type: 'authorization_code',
+      client_id: process.env.TABLEAU_CLIENT_ID,
+      client_secret: process.env.TABLEAU_CLIENT_SECRET,
+      code,
+      redirect_uri: process.env.TABLEAU_REDIRECT_URI
+    }), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const { access_token } = response.data;
+    // Store the access token in your session or database as per your application requirement
+
+    res.redirect('/dashboard'); // Redirect to a dashboard or home page
+  } catch (error) {
+    console.error('Error exchanging code for tokens:', error);
+    res.status(500).send('Authentication failed');
+  }
+};
