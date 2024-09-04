@@ -19,16 +19,17 @@ import session from 'express-session';
 
 dotenv.config();
 
+
+const app = express();
+
+connectDB(app);
+
 app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: { secure: 'auto' } // Automatically set secure to true if request is HTTPS
 }));
-
-const app = express();
-
-connectDB(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
