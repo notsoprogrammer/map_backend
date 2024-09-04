@@ -10,15 +10,21 @@ import axios from 'axios';
 // @route POST /api/users/auth
 // @access Public
 const authUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(401).json({ message: 'Invalid email or password' });
+        return;
+    }
 
-  if (user && (await user.matchPasswords(password))) {
-    const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
+    // Check if the user can login (match passwords)
+    if (!(await user.matchPasswords(password))) {
+        res.status(401).json({ message: 'Invalid email or password' });
+        return;
+    }
 
+    // Create JWT for Tableau
     const tableauToken = jwt.sign(
         {
             iss: process.env.CONNECTED_APP_CLIENT_ID,
@@ -39,48 +45,56 @@ const authUser = asyncHandler(async (req, res) => {
     );
     console.log( tableauToken);
 
-      const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
-      const signInRequestBody = `
-          <tsRequest>
-              <credentials jwt="${tableauToken}">
-                  <site contentUrl="${process.env.TABLEAU_SITE_URL}"/>
-              </credentials>
-          </tsRequest>`;
+    // Authenticate with Tableau
+    const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
+    const signInRequestBody = `
+        <tsRequest>
+            <credentials jwt="${tableauToken}">
+                <site contentUrl="${process.env.TABLEAU_SITE_URL}"/>
+            </credentials>
+        </tsRequest>`;
 
-      try {
-          const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
-              headers: { 'Content-Type': 'application/xml' }
-          });
+    try {
+        const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
+            headers: { 'Content-Type': 'application/xml' }
+        });
 
-          if (tableauResponse.data && tableauResponse.data.credentials && tableauResponse.data.credentials.token) {
-              const tableauTokenResponse = tableauResponse.data.credentials.token;
-              req.session.isAuthenticatedWithTableau = true;  // Set session variable on successful authentication
+        if (tableauResponse.data && tableauResponse.data.credentials && tableauResponse.data.credentials.token) {
+            const tableauTokenResponse = tableauResponse.data.credentials.token;
+            req.session.isAuthenticatedWithTableau = true;  // Set session variable on successful authentication
 
-              await Token.create({
-                  userId: user._id,
-                  token: authToken,
-                  tableauToken: tableauTokenResponse,
-              });
+            // Create authToken only after successful Tableau authentication
+            const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+                expiresIn: '1d',
+            });
 
-              res.status(201).json({
-                  _id: user._id,
-                  name: user.name,
-                  email: user.email,
-                  municipality: user.municipality,
-                  job: user.job,
-                  role: user.role,
-                  authToken,
-                  tableauToken: tableauTokenResponse,
-              });
-          }
-      } catch (error) {
-          console.error('Error signing in to Tableau:', error.message);
-          res.status(500).json({ message: 'Error signing in to Tableau' });
-      }
-  } else {
-      res.status(401).json({ message: 'Invalid email or password' });
-  }
+            await Token.create({
+                userId: user._id,
+                token: authToken,
+                tableauToken: tableauTokenResponse,
+            });
+
+            res.status(201).json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                municipality: user.municipality,
+                job: user.job,
+                role: user.role,
+                authToken,
+                tableauToken: tableauTokenResponse,
+            });
+        } else {
+            // Handle failed Tableau authentication
+            res.status(500).json({ message: 'Tableau authentication failed' });
+        }
+    } catch (error) {
+        console.error('Error during Tableau authentication:', error.message);
+        res.status(500).json({ message: 'Error signing in to Tableau: ' + error.message });
+    }
 });
+
+export default authUser;
 
 
 //@desc Register new user
