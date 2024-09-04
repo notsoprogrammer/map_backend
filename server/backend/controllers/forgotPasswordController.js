@@ -3,8 +3,6 @@ import nodemailer from 'nodemailer';
 import User from '../models/userModel.js';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import asyncHandler from 'express-async-handler';
-import axios from 'axios'; 
 dotenv.config();
 
 export const forgotPassword = async (req, res) => {
@@ -123,62 +121,4 @@ export const getEmail = async (req, res) => {
         res.status(400).json({ message: 'Failed to retrieve email.' });
     }
 };
-
-const {
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI,
-    JWT_SECRET,
-    TABLEAU_CLIENT_ID,
-    TABLEAU_REDIRECT_URI
-} = process.env;
-
-
-// New Google OAuth functions
-export const redirectToTableau = (req, res) => {
-    const scope = 'openid email profile';
-    const tableauAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${TABLEAU_CLIENT_ID}&redirect_uri=${encodeURIComponent(TABLEAU_REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=code&prompt=consent`;
-    res.redirect(tableauAuthUrl);
-};
-
-export const handleGoogleCallback = asyncHandler(async (req, res) => {
-    const { code } = req.query;
-    if (!code) {
-        return res.status(400).send('No code received');
-    }
-
-    try {
-        const { data } = await axios.post('https://oauth2.googleapis.com/token', {
-            code,
-            client_id: GOOGLE_CLIENT_ID,
-            client_secret: GOOGLE_CLIENT_SECRET,
-            redirect_uri: GOOGLE_REDIRECT_URI,
-            grant_type: 'authorization_code',
-        });
-
-        const idToken = data.id_token; // JWT containing user info
-        // Assume a function to decode the JWT and extract user details or verify user
-        const userInfo = decodeJWT(idToken); // Custom function to decode JWT
-
-        const user = await User.findOneAndUpdate(
-            { email: userInfo.email },
-            { lastLogin: new Date() },
-            { new: true, upsert: true } // Update last login or insert new user
-        );
-
-        const authToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
-            expiresIn: '1d',
-        });
-
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            authToken,
-        });
-    } catch (error) {
-        console.error('Error during Google authentication:', error);
-        res.status(500).send('Failed to authenticate with Google');
-    }
-});
 

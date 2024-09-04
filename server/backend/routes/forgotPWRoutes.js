@@ -1,4 +1,4 @@
-import {forgotPassword,resetPassword,getEmail,redirectToTableau,handleGoogleCallback} from '../controllers/forgotPasswordController.js';
+import {forgotPassword,resetPassword,getEmail} from '../controllers/forgotPasswordController.js';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -19,11 +19,5 @@ router.get('/validate-token', (req, res) => {
     } catch (error) {
       res.status(401).json({ valid: false, message: 'Token expired or invalid' });
     }
-  });// Route to start the Google OAuth flow
-router.get('/tableau', redirectToTableau);
-
-// Route to handle the callback from Google after authentication
-router.get('/google/callback', handleGoogleCallback);
-
-
+  });
 export default router;
