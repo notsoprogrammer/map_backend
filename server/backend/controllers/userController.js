@@ -58,6 +58,8 @@ const authUser = asyncHandler(async (req, res) => {
         const tableauResponse = await axios.post(signInUrl, signInRequestBody, {
             headers: { 'Content-Type': 'application/xml' }
         });
+        
+        console.log('Tableau Sign-In Response:', tableauResponse.data);
 
         if (tableauResponse.data && tableauResponse.data.credentials && tableauResponse.data.credentials.token) {
             const tableauTokenResponse = tableauResponse.data.credentials.token;
