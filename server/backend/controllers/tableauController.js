@@ -20,6 +20,7 @@ const getDashboardLinks = asyncHandler(async (req, res) => {
   const dashboard = await Dashboard.findOne({ municipality: userMunicipality });
   if (dashboard) {
     res.json({
+      municipality: userMunicipality,
       mainDashboardLink: dashboard.mainDashboardLink,
       farmersProfileLink: dashboard.farmersProfileLink,
       riceDashboardLink: dashboard.riceDashboardLink,
