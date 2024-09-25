@@ -56,10 +56,12 @@ const addUser = asyncHandler(async (req, res) => {
     
     📧 Email: ${email}
     🔑 Temporary Password: ${randomPassword}
-    🏘️ Municipality: ${municipality}
-    💼 Job Role: ${job}
-    
+
+    You can log in to the application here: https://mapulon.netlify.app
+
     For your security, we recommend logging in and updating your password right away. 
+
+    You will also receive a **separate email from Tableau** with instructions on how to set up your Tableau account and activate the software.
 
     We're excited to see how you'll make the most of the tools and features we have created to enhance agricultural productivity. If you have any questions, don't hesitate to reach out – we're here to help!
 
@@ -69,6 +71,7 @@ const addUser = asyncHandler(async (req, res) => {
     The Project GeoMap Team
     🌱 Mapping the Future of Agriculture 
 `;
+
 
     const mailOptions = {
         from: process.env.SMTP_MAIL, // Your app's email address
