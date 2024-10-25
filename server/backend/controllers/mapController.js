@@ -11,7 +11,6 @@ conn.once('open', () => {
   gfs = Grid(conn.db, mongoose.mongo);
   gfs.collection("maps");
   console.log('Grid connected get maps')
-  // app.listen(port, () => console.log(`Server started on port ${port}, MongoDB: ${conn.host}`));
 })
 
 const getMaps = asyncHandler ( async (req, res) => {
@@ -24,7 +23,6 @@ const getMaps = asyncHandler ( async (req, res) => {
 
   try {
     const file = await gfs.files.findOne(query);
-    // const file = await gfs.files.findOne({ filename: req.params.filename });
 
     if (!file || file.length === 0) {
       return res.status(404).json({

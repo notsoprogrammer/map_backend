@@ -4,7 +4,7 @@ import Token from '../models/tokenModel.js';
 import User from '../models/userModel.js';
 
 const protect = asyncHandler(async (req, res, next) => {
-    console.log('Authorization Header:', req.headers.authorization); // Log the authorization header
+    console.log('Authorization Header:', req.headers.authorization); 
 
     let authToken;
 
@@ -14,13 +14,13 @@ const protect = asyncHandler(async (req, res, next) => {
 
             if (!authToken) {
                 res.status(401).json({ message: 'Not authorized, no token' });
-                return; // Exit the middleware to prevent further processing
+                return; 
             }
 
             const storedToken = await Token.findOne({ token: authToken });
             if (!storedToken) {
                 res.status(401).json({ message: 'Not authorized, token not found' });
-                return; // Exit the middleware to prevent further processing
+                return; 
             }
 
             const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
@@ -28,7 +28,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
             if (!req.user) {
                 res.status(401).json({ message: 'Not authorized, user not found' });
-                return; // Exit the middleware to prevent further processing
+                return; 
             }
 
             next();

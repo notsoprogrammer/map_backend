@@ -28,7 +28,7 @@ app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: 'auto' } // Automatically set secure to true if request is HTTPS
+  cookie: { secure: 'auto' } 
 }));
 
 app.use(express.json());
@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-// CORS configuration
+
 const corsOptions = {
   origin: ['http://localhost:3000','https://mapulon.netlify.app'],
   credentials: true,
@@ -46,10 +46,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Body parser middleware
+
 app.use(bodyParser.json());
 
-// Define routes
+
 app.use('/api/users', userRoutes);
 app.use('/api/get', mapRoutes);
 app.use('/api/files', fileUploadRoutes);
@@ -58,14 +58,14 @@ app.use('/api/image', profileImageRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/auth',forgotRoutes);
 app.use('/api/admin',adminRoutes);
-// Root route
+
 
 app.get('/', (req, res) => res.send('Server is ready'));
 
-// Error handling middleware
+
 app.use(notFound);
 app.use(errorHandler);
 
-// Start the server
+
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server started on port ${port}`));

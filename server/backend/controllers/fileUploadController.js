@@ -1,4 +1,4 @@
-// controllers/fileController.js
+
 
 import Grid from 'gridfs-stream'
 import { GridFsStorage } from 'multer-gridfs-storage';
@@ -16,7 +16,7 @@ conn.once('open', () => {
   console.log('GridFS Connected')
 });
 
-// Create storage engine using multer-gridfs-storage
+
 const storage = new GridFsStorage({
   url: process.env.MONGODB_URI,
   file: (req, file) => {
@@ -42,9 +42,9 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
-// Upload a file
+
 const uploadFile = async (req, res) => {
-  // res.json({ file: req.file });
+  
   try {
     res.json({ file: req.file, message: "File uploaded successfully" });
   } catch (error) {

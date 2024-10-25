@@ -7,7 +7,7 @@ const sendEmail = async (req, res) => {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
-      secure: false,  // true if port is 465, false for other ports like 587
+      secure: false,  
       auth: {
         user: process.env.SMTP_MAIL,
         pass: process.env.SMTP_PASS
@@ -37,10 +37,10 @@ Project Geomap`
 
     try {
       const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent:', info.response);  // Log successful email sending
+      console.log('Email sent:', info.response);  
       res.status(200).json({ message: 'Email sent successfully, thank you for your message!' });
     } catch (error) {
-      console.error('Error sending email:', error);  // Log the error details
+      console.error('Error sending email:', error);  
       res.status(500).json({ error: 'Failed to send email', details: error.message });
     }
 };

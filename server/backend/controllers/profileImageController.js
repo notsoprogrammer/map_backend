@@ -9,7 +9,7 @@ conn.once('open', () => {
   gfs.collection('profileImages');
 });
 
-// Upload a profile image
+
 const uploadProfileImage = async (req, res) => {
     if (req.file) {
         res.status(201).json({
@@ -25,7 +25,7 @@ const uploadProfileImage = async (req, res) => {
     }
 };
 
-// Get a profile image by filename
+
 const getProfileImage = async (req, res) => {
     try {
         const file = await gfs.files.findOne({ filename: req.params.filename });
@@ -40,7 +40,7 @@ const getProfileImage = async (req, res) => {
     }
 };
 
-// Delete a profile image
+
 const deleteProfileImage = async (req, res) => {
     try {
         await gfs.files.deleteOne({ filename: req.params.filename });
@@ -50,7 +50,7 @@ const deleteProfileImage = async (req, res) => {
     }
 };
 
-// Update the metadata of a profile image
+
 const updateProfileImageMetadata = async (req, res) => {
     const { filename } = req.params;
     const { newMetadata } = req.body;

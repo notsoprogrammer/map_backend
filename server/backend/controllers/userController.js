@@ -18,13 +18,11 @@ const authUser = asyncHandler(async (req, res) => {
         return;
     }
 
-    // Check if the user can login (match passwords)
     if (!(await user.matchPasswords(password))) {
         res.status(401).json({ message: 'Invalid email or password' });
         return;
     }
 
-    // Create JWT for Tableau
     const tableauToken = jwt.sign(
         {
             iss: process.env.CONNECTED_APP_CLIENT_ID,
@@ -45,7 +43,6 @@ const authUser = asyncHandler(async (req, res) => {
     );
     console.log( tableauToken);
 
-    // Authenticate with Tableau
     const signInUrl = `${process.env.TABLEAU_SERVER_URL}/api/3.16/auth/signin`;
     const signInRequestBody = `
         <tsRequest>
@@ -63,9 +60,7 @@ const authUser = asyncHandler(async (req, res) => {
 
         if (tableauResponse.data && tableauResponse.data.credentials && tableauResponse.data.credentials.token) {
             const tableauTokenResponse = tableauResponse.data.credentials.token;
-            req.session.isAuthenticatedWithTableau = true;  // Set session variable on successful authentication
-
-            // Create authToken only after successful Tableau authentication
+            req.session.isAuthenticatedWithTableau = true;  
             const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
                 expiresIn: '1d',
             });
@@ -87,7 +82,6 @@ const authUser = asyncHandler(async (req, res) => {
                 tableauToken: tableauTokenResponse,
             });
         } else {
-            // Handle failed Tableau authentication
             res.status(500).json({ message: 'Tableau authentication failed' });
         }
     } catch (error) {
@@ -182,10 +176,9 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         user.email = req.body.email || user.email;
         user.job = req.body.job || user.job;
         user.municipality = req.body.municipality || user.municipality;
-        // user.profileImg = req.body.profileImg || user.profileImg;
 
         if (req.body.password) {
-            user.password = req.body.password;  // Ensure this password is hashed (usually handled in your User model)
+            user.password = req.body.password; 
         }
 
         const updatedUser = await user.save();
@@ -196,7 +189,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             email: updatedUser.email,
             municipality: updatedUser.municipality,
             job: updatedUser.job,
-            // profileImg: updatedUser.profileImg
         });
     } else {
         res.status(404).json({ message: 'User not found' });

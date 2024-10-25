@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-// Set up Multer with GridFsStorage
+
 const storage = new GridFsStorage({
     url: process.env.MONGODB_URI,
     file: (req, file) => {
@@ -26,7 +26,7 @@ const storage = new GridFsStorage({
           const fileInfo = {
             filename: filename,
             bucketName: 'profileImages',
-            metadata: req.body // Attach metadata from the request body if needed
+            metadata: req.body 
           };
           resolve(fileInfo);
         });
@@ -36,9 +36,9 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
-// Routes
+
 router.post('/upload', upload.single('file'), uploadProfileImage);
-router.get('/municipality/:municipality', getImagesByMunicipality); // Updated to use controller function
+router.get('/municipality/:municipality', getImagesByMunicipality); 
 router.delete('/:filename', deleteProfileImage);
 router.put('/metadata/:filename', updateProfileImageMetadata);
 

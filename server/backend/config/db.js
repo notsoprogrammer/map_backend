@@ -7,7 +7,7 @@ const connectDB = async (app) => {
           useUnifiedTopology: true,
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
-        // Store the database connection in req.app.locals
+        
         if (!process.env.DATABASE_NAME) {
             throw new Error('Database name is not defined in environment variables.');
         }

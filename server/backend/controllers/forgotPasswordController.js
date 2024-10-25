@@ -12,31 +12,31 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-        // Respond with a generic message to avoid email enumeration attacks
+        
         return res.status(200).json({ message: 'A link to reset your password has been sent if the email is registered with us.' });
     }
 
-    // Check for excessive attempts
+    
     const now = new Date();
     if (user.lastResetAttempt && (now - user.lastResetAttempt < 24 * 60 * 60 * 1000)) {
         if (user.resetAttempts >= 5) {
             return res.status(429).json({ message: 'Maximum reset attempts exceeded. Please try again tomorrow.' });
         }
     } else {
-        user.resetAttempts = 0;  // Reset the count after a day
+        user.resetAttempts = 0;  
     }
 
     user.resetAttempts++;
     user.lastResetAttempt = now;
     await user.save();
 
-    // Generate a reset token
+    
     const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     user.resetToken = resetToken;
-    user.resetTokenExpire = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour expiration
+    user.resetTokenExpire = new Date(now.getTime() + 60 * 60 * 1000); 
     await user.save();
 
-    // Create the reset URL and email it to the user
+    
     const resetUrl = `${process.env.REACT_FRONTEND}/reset-password/${resetToken}`;
     const message = `You are receiving this because you (or someone else) requested a reset of your account password.\n\n
                      Please click on the following link, or paste it into your browser to complete the process:\n\n
@@ -46,7 +46,7 @@ export const forgotPassword = async (req, res) => {
     const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
-    secure: false,  // true for port 465, false for other ports
+    secure: false,  
     auth: {
         user: process.env.SMTP_MAIL,
         pass: process.env.SMTP_PASS
@@ -56,8 +56,8 @@ export const forgotPassword = async (req, res) => {
 
 
     const mailOptions = {
-        from: process.env.SMTP_MAIL,  // Sender address (your app's email)
-        to: email,                    // Receiver address (user's email)
+        from: process.env.SMTP_MAIL,  
+        to: email,                    
         subject: 'Password Reset Request',
         text: message
     };
@@ -88,14 +88,14 @@ export const resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Token expired or invalid.' });
         }
 
-        // Update the password; the pre-save hook will hash it
+        
         user.password = password;
 
-        // Clear reset token fields
+        
         user.resetToken = undefined;
         user.resetTokenExpire = undefined;
 
-        // Save the updated user
+        
         await user.save();
         console.log("Password reset successful for user:", user.email);
 
@@ -131,7 +131,7 @@ export const tableauAuth = (req, res) => {
     response_type: 'code',
     client_id: process.env.TABLEAU_CLIENT_ID,
     scope: 'full',
-    state: 'xyz', // A unique session identifier to mitigate CSRF
+    state: 'xyz', 
     redirect_uri: process.env.TABLEAU_REDIRECT_URI
   });
 
@@ -156,9 +156,9 @@ export const tableauCallback = async (req, res) => {
     });
 
     const { access_token } = response.data;
-    // Store the access token in your session or database as per your application requirement
+    
 
-    res.redirect('/dashboard'); // Redirect to a dashboard or home page
+    res.redirect('/dashboard'); 
   } catch (error) {
     console.error('Error exchanging code for tokens:', error);
     res.status(500).send('Authentication failed');

@@ -4,8 +4,8 @@ import express from 'express';
 
 const router = express.Router();
 
-// router.get('/map/:filename', getMaps);
-router.get('/map/:municipality/:mapType/:dataType', getMaps);
-router.get('/metadata/:municipality/:mapType/:dataType', getMetadata);
+
+router.get('/map/:filename', getMaps);
+router.get('/map/:municipality/:mapType/:dataType', getMetadata);
 
 export default router;
